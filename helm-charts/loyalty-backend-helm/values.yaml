@@ -1,0 +1,93 @@
+# Backend Helm Values
+
+replicaCount: 2
+
+image:
+  repository: rewardplus/loyalty-backend
+  tag: latest
+  pullPolicy: IfNotPresent
+
+imagePullSecrets:
+  - name: dockerhub-secret
+
+service:
+  type: ClusterIP
+  port: 8080
+
+ingress:
+  enabled: false
+  className: nginx
+  hosts:
+    - host: api.loyalty.example.com
+      paths:
+        - path: /
+          pathType: Prefix
+
+resources:
+  requests:
+    memory: "512Mi"
+    cpu: "250m"
+  limits:
+    memory: "1Gi"
+    cpu: "500m"
+
+livenessProbe:
+  httpGet:
+    path: /api/actuator/health
+    port: 8080
+  initialDelaySeconds: 30
+  periodSeconds: 10
+  timeoutSeconds: 5
+  failureThreshold: 3
+
+readinessProbe:
+  httpGet:
+    path: /api/actuator/health
+    port: 8080
+  initialDelaySeconds: 10
+  periodSeconds: 5
+  timeoutSeconds: 3
+  failureThreshold: 3
+
+env:
+  - name: SPRING_PROFILES_ACTIVE
+    value: kubernetes
+  - name: DB_HOST
+    valueFrom:
+      secretKeyRef:
+        name: loyalty-db-secret
+        key: host
+  - name: DB_PORT
+    valueFrom:
+      secretKeyRef:
+        name: loyalty-db-secret
+        key: port
+  - name: DB_NAME
+    valueFrom:
+      secretKeyRef:
+        name: loyalty-db-secret
+        key: database
+  - name: DB_USERNAME
+    valueFrom:
+      secretKeyRef:
+        name: loyalty-db-secret
+        key: username
+  - name: DB_PASSWORD
+    valueFrom:
+      secretKeyRef:
+        name: loyalty-db-secret
+        key: mysql-password
+
+configmap:
+  app-name: RewardPlus Loyalty Program
+  points-earn-rate: "10"
+  points-welcome-bonus: "100"
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+podAnnotations: {}
+

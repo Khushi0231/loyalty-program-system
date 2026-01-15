@@ -1,0 +1,50 @@
+# RewardPlus Loyalty Program - External Configuration
+# This file can be used for environment-specific overrides
+
+# Database Configuration
+database:
+  host: "localhost"
+  port: 3306
+  name: "loyalty_db"
+  username: "root"
+  password: "password"
+  pool:
+    max-size: 10
+    min-idle: 5
+    timeout: 30000
+
+# Application Configuration
+app:
+  host: "0.0.0.0"
+  port: 8080
+  name: "RewardPlus Loyalty Program"
+  version: "1.0.0"
+
+# Points Configuration
+points:
+  earn-rate: 10        # Points earned per dollar spent
+  welcome-bonus: 100   # Welcome bonus points for new customers
+  redemption-rate: 100 # Points required per dollar redeemed
+
+# Security Configuration
+security:
+  jwt:
+    secret: "loyalty-program-secret-key-for-jwt-token-generation-must-be-at-least-256-bits"
+    expiration: 86400000  # 24 hours
+
+# Redis Configuration (for future caching)
+redis:
+  host: "localhost"
+  port: 6379
+  key-prefix: "loyalty:"
+
+# External Services
+services:
+  email:
+    enabled: false
+    host: "smtp.example.com"
+    port: 587
+  sms:
+    enabled: false
+    api-key: "your-api-key"
+

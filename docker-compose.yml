@@ -1,0 +1,58 @@
+version: '3.8'
+
+services:
+  mysql:
+    build: ./database/mysql-init
+    container_name: loyalty-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: loyalty_db
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-ppassword"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - loyalty-network
+
+  loyalty-backend:
+    build: ./backend/loyalty-backend
+    container_name: loyalty-backend
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=default
+      - DB_HOST=mysql
+      - DB_PORT=3306
+      - DB_NAME=loyalty_db
+      - DB_USERNAME=root
+      - DB_PASSWORD=password
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - loyalty-network
+
+  loyalty-frontend:
+    build: ./frontend/loyalty-frontend
+    container_name: loyalty-frontend
+    ports:
+      - "3000:80"
+    environment:
+      - VITE_API_URL=http://localhost:8080/api
+    depends_on:
+      - loyalty-backend
+    networks:
+      - loyalty-network
+
+networks:
+  loyalty-network:
+    driver: bridge
+
+volumes:
+  mysql-data:
+

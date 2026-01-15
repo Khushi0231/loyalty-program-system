@@ -1,0 +1,32 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: loyalty-mysql
+  labels:
+    app: loyalty-db
+spec:
+  type: ClusterIP
+  ports:
+    - port: 3306
+      targetPort: 3306
+      protocol: TCP
+      name: mysql
+  selector:
+    app: loyalty-db
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: loyalty-mysql-headless
+  labels:
+    app: loyalty-db
+spec:
+  clusterIP: None
+  ports:
+    - port: 3306
+      targetPort: 3306
+      protocol: TCP
+      name: mysql
+  selector:
+    app: loyalty-db
+

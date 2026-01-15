@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: loyalty-backend-config
+  labels:
+    app: loyalty-backend
+data:
+  APP_NAME: {{ .Values.configmap.app-name | quote }}
+  POINTS_EARN_RATE: {{ .Values.configmap.points-earn-rate | quote }}
+  POINTS_WELCOME_BONUS: {{ .Values.configmap.points-welcome-bonus | quote }}
+

@@ -1,0 +1,13 @@
+apiVersion: v2
+name: loyalty-db-helm
+description: MySQL database Helm chart for RewardPlus Loyalty Program
+type: application
+version: 1.0.0
+appVersion: "8.0"
+
+dependencies:
+  - name: mysql
+    version: 9.x.x
+    repository: "https://charts.bitnami.com/bitnami"
+    alias: mysql
+

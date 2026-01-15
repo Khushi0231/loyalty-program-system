@@ -1,0 +1,57 @@
+# Loyalty Database Helm Values
+
+mysql:
+  enabled: true
+  auth:
+    existingSecret: loyalty-db-secret
+    database: loyalty_db
+    username: root
+  primary:
+    replicaCount: 1
+    persistence:
+      enabled: true
+      storageClass: "standard"
+      size: 10Gi
+      accessModes:
+        - ReadWriteOnce
+    resources:
+      requests:
+        memory: "512Mi"
+        cpu: "250m"
+      limits:
+        memory: "1Gi"
+        cpu: "500m"
+    containerPorts:
+      mysql: 3306
+  volumePermissions:
+    enabled: true
+    resources:
+      requests:
+        memory: "128Mi"
+        cpu: "100m"
+
+service:
+  type: ClusterIP
+  port: 3306
+
+persistence:
+  enabled: true
+  storageClass: "standard"
+  size: 10Gi
+
+resources:
+  requests:
+    memory: "512Mi"
+    cpu: "250m"
+  limits:
+    memory: "1Gi"
+    cpu: "500m"
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+podAnnotations: {}
+

@@ -1,0 +1,68 @@
+# Frontend Helm Values
+
+replicaCount: 3
+
+image:
+  repository: rewardplus/loyalty-frontend
+  tag: latest
+  pullPolicy: IfNotPresent
+
+service:
+  type: NodePort
+  port: 80
+  nodePort: 30080
+
+ingress:
+  enabled: true
+  className: nginx
+  hosts:
+    - host: loyalty.example.com
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - secretName: loyalty-tls
+      hosts:
+        - loyalty.example.com
+
+resources:
+  requests:
+    memory: "128Mi"
+    cpu: "100m"
+  limits:
+    memory: "256Mi"
+    cpu: "200m"
+
+livenessProbe:
+  httpGet:
+    path: /
+    port: 80
+  initialDelaySeconds: 10
+  periodSeconds: 10
+  timeoutSeconds: 5
+  failureThreshold: 3
+
+readinessProbe:
+  httpGet:
+    path: /
+    port: 80
+  initialDelaySeconds: 5
+  periodSeconds: 5
+  timeoutSeconds: 3
+  failureThreshold: 3
+
+env:
+  - name: VITE_API_URL
+    value: http://loyalty-backend:8080/api
+
+configmap:
+  app-title: RewardPlus Loyalty Program
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+podAnnotations: {}
+

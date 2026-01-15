@@ -1,0 +1,7 @@
+apiVersion: v2
+name: loyalty-backend-helm
+description: Backend API Helm chart for RewardPlus Loyalty Program
+type: application
+version: 1.0.0
+appVersion: "1.0.0"
+
