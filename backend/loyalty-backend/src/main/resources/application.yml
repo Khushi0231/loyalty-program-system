@@ -1,98 +1,20 @@
-# RewardPlus Loyalty Program - Application Configuration
-# Environment: ${SPRING_PROFILES_ACTIVE:default}
-
 spring:
-  application:
-    name: loyalty-backend
-    
-  config:
-    import: optional:file:./config.yaml
-    
   datasource:
-    url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME:loyalty_db}?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
-    username: ${DB_USERNAME:root}
-    password: ${DB_PASSWORD:password}
+    url: jdbc:mysql://localhost:3306/mydb
+    username: myuser
+    password: mypassword
     driver-class-name: com.mysql.cj.jdbc.Driver
-    hikari:
-      maximum-pool-size: 10
-      minimum-idle: 5
-      connection-timeout: 30000
-      idle-timeout: 600000
-      max-lifetime: 1800000
-      
   jpa:
     hibernate:
-      ddl-auto: update
-      naming:
-        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
-    show-sql: true
-    properties:
-      hibernate:
-        dialect: org.hibernate.dialect.MySQLDialect
-        format_sql: true
-        jdbc:
-          batch_size: 50
-        order_inserts: true
-        order_updates: true
-        
-  servlet:
-    multipart:
-      enabled: true
-      max-file-size: 10MB
-      max-request-size: 10MB
-
-# Server Configuration
-server:
-  port: ${SERVER_PORT:8080}
-  servlet:
-    context-path: /api
-
-# Application Custom Properties
-app:
-  name: RewardPlus Loyalty Program
-  version: 1.0.0
-  
-  # Points Configuration
-  points:
-    earn-rate: ${POINTS_EARN_RATE:10}  # Points per dollar spent
-    welcome-bonus: ${POINTS_WELCOME_BONUS:100}
-    redemption-rate: ${POINTS_REDEMPTION_RATE:100}  # Points per dollar redeemed
-    
-  # Security Configuration
-  security:
-    jwt:
-      secret: ${JWT_SECRET:loyalty-program-secret-key-for-jwt-token-generation-must-be-at-least-256-bits}
-      expiration: ${JWT_EXPIRATION:86400000}  # 24 hours in milliseconds
-      
-# Swagger/OpenAPI Configuration
-springdoc:
-  api-docs:
-    enabled: true
-    path: /api-docs
-  swagger-ui:
-    enabled: true
-    path: /swagger-ui.html
-    operations-sorted: METHOD
-  show-actuator-endpoints: true
-
-# Logging Configuration
+      dialect: org.hibernate.dialect.MySQL5Dialect
+      show_sql: true
+    open-in-view: false
 logging:
   level:
-    root: INFO
-    com.rewardplus.loyalty: DEBUG
-    org.springframework.security: DEBUG
-    org.hibernate.SQL: DEBUG
-    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
-  pattern:
-    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
-    
-# Management Endpoints
-management:
-  endpoints:
-    web:
-      exposure:
-        include: health,info,metrics
-  endpoint:
-    health:
-      show-details: always
-
+    org.springframework: INFO
+    org.hibernate: WARN
+    com.myapp: DEBUG
+app:
+  name: Loyalty Program System
+  version: 1.0
+  description: A system to manage customer loyalty programs.
