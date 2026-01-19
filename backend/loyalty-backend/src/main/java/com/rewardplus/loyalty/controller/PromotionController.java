@@ -66,7 +66,7 @@ public class PromotionController {
 
     @GetMapping("/active/paged")
     @Operation(summary = "Get active promotions", description = "Retrieve active promotions with pagination")
-    public ResponseEntity<ApiResponse<Page<PromotionDTO>>> getActivePromotionsPaged(
+    public ResponseEntity<ApiResponse<List<PromotionDTO>>> getActivePromotionsPaged(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size) {
         Page<PromotionDTO> promotions = promotionService.getActivePromotions(PageRequest.of(page, size));
@@ -100,7 +100,7 @@ public class PromotionController {
 
     @GetMapping("/search")
     @Operation(summary = "Search promotions", description = "Search promotions by name")
-    public ResponseEntity<ApiResponse<Page<PromotionDTO>>> searchPromotions(
+    public ResponseEntity<ApiResponse<List<PromotionDTO>>> searchPromotions(
             @RequestParam String query,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size) {

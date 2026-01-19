@@ -206,10 +206,9 @@ public class RedemptionService {
         }
 
         // Refund points
-        LoyaltyPoints loyaltyPoints = loyaltyPointsRepository.findByCustomerId(
-            redemptionLog.getCustomer().getId())
-            .orElseThrow(() -> new ResourceNotFoundException("LoyaltyPoints", "customerId", 
-                redemptionLog.getCustomer().getId()));
+        Long customerId = redemptionLog.getCustomer().getId();
+        LoyaltyPoints loyaltyPoints = loyaltyPointsRepository.findByCustomerId(customerId)
+            .orElseThrow(() -> new ResourceNotFoundException("LoyaltyPoints", "customerId", customerId));
 
         loyaltyPoints.addPoints(redemptionLog.getPointsRedeemed());
         loyaltyPointsRepository.save(loyaltyPoints);

@@ -16,8 +16,8 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "transactions", indexes = {
     @Index(name = "idx_transaction_customer", columnList = "customer_id"),
-    @Index(name = "idx_transaction_date", columnList = "transactionDate"),
-    @Index(name = "idx_transaction_code", columnList = "transactionCode")
+    @Index(name = "idx_transaction_date", columnList = "transaction_date"),
+    @Index(name = "idx_transaction_code", columnList = "transaction_code")
 })
 @Data
 @Builder
@@ -29,7 +29,7 @@ public class Transaction {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, unique = true, length = 50)
+    @Column(name = "transaction_code", nullable = false, unique = true, length = 50)
     private String transactionCode;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -39,18 +39,18 @@ public class Transaction {
     @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal amount;
 
-    @Column(precision = 10, scale = 2)
+    @Column(name = "discount_applied", precision = 10, scale = 2)
     private BigDecimal discountApplied;
 
-    @Column(nullable = false, precision = 10, scale = 2)
+    @Column(name = "net_amount", nullable = false, precision = 10, scale = 2)
     @Builder.Default
     private BigDecimal netAmount = BigDecimal.ZERO;
 
-    @Column(nullable = false)
+    @Column(name = "transaction_date", nullable = false)
     private LocalDateTime transactionDate;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 30)
+    @Column(name = "transaction_type", nullable = false, length = 30)
     @Builder.Default
     private TransactionType transactionType = TransactionType.PURCHASE;
 
@@ -58,28 +58,28 @@ public class Transaction {
     @Column(length = 30)
     private TransactionStatus status;
 
-    @Column(length = 50)
+    @Column(name = "store_code", length = 50)
     private String storeCode;
 
-    @Column(length = 100)
+    @Column(name = "store_name", length = 100)
     private String storeName;
 
-    @Column(length = 50)
+    @Column(name = "cashier_code", length = 50)
     private String cashierCode;
 
-    @Column(length = 100)
+    @Column(name = "cashier_name", length = 100)
     private String cashierName;
 
-    @Column(length = 50)
+    @Column(name = "product_category", length = 50)
     private String productCategory;
 
-    @Column(length = 500)
+    @Column(name = "product_details", length = 500)
     private String productDetails;
 
-    @Column(length = 100)
+    @Column(name = "payment_method", length = 100)
     private String paymentMethod;
 
-    @Column(length = 50)
+    @Column(name = "receipt_number", length = 50)
     private String receiptNumber;
 
     @Column(columnDefinition = "TEXT")
@@ -88,10 +88,10 @@ public class Transaction {
     @OneToOne(mappedBy = "transaction", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private LoyaltyPoints loyaltyPoints;
 
-    @Column(nullable = false, updatable = false)
+    @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
-    @Column(nullable = false)
+    @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
 
     @PrePersist

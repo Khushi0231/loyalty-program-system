@@ -10,6 +10,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -40,22 +41,22 @@ public class PromotionDTO {
     private LocalDate endDate;
 
     @DecimalMin(value = "0.0", message = "Discount percentage cannot be negative")
-    private Double discountPercentage;
+    private BigDecimal discountPercentage;
 
     @DecimalMin(value = "0.0", message = "Discount amount cannot be negative")
-    private Double discountAmount;
+    private BigDecimal discountAmount;
 
     @DecimalMin(value = "0.0", message = "Bonus points multiplier cannot be negative")
-    private Double bonusPointsMultiplier;
+    private BigDecimal bonusPointsMultiplier;
 
     @Positive(message = "Fixed bonus points must be positive")
     private Integer bonusPointsFixed;
 
     @DecimalMin(value = "0.0", message = "Minimum purchase amount cannot be negative")
-    private Double minimumPurchaseAmount;
+    private BigDecimal minimumPurchaseAmount;
 
     @DecimalMin(value = "0.0", message = "Maximum discount cannot be negative")
-    private Double maximumDiscount;
+    private BigDecimal maximumDiscount;
 
     @Positive(message = "Usage limit must be positive")
     private Integer usageLimit;

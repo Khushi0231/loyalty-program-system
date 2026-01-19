@@ -8,50 +8,50 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 /**
  * Customer entity representing a loyalty program member.
  * Links to transactions, points, rewards, and promotions through various relationships.
  */
 @Entity
-@Table(name = "customers")
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@Table(name = "customers")
 public class Customer {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, unique = true, length = 50)
+    @Column(name = "customer_code", nullable = false, unique = true, length = 50)
     private String customerCode;
 
-    @Column(nullable = false, length = 100)
+    @Column(name = "first_name", nullable = false, length = 100)
     private String firstName;
 
-    @Column(nullable = false, length = 100)
+    @Column(name = "last_name", nullable = false, length = 100)
     private String lastName;
 
-    @Column(nullable = false, unique = true, length = 255)
+    @Column(nullable = false, unique = true)
     private String email;
 
     @Column(length = 20)
     private String phone;
 
-    @Column(nullable = false)
+    @Column(name = "date_of_birth", nullable = false)
     private LocalDate dateOfBirth;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 20)
-    @Builder.Default
-    private CustomerStatus status = CustomerStatus.ACTIVE;
+    @Column(nullable = false)
+    private CustomerStatus status;
 
     @Enumerated(EnumType.STRING)
-    @Column(length = 20)
     private CustomerTier tier;
 
     @Column(length = 10)
@@ -66,7 +66,7 @@ public class Customer {
     @Column(length = 50)
     private String state;
 
-    @Column(length = 20)
+    @Column(name = "postal_code", length = 20)
     private String postalCode;
 
     @Column(length = 100)
@@ -78,28 +78,31 @@ public class Customer {
     @Column(length = 100)
     private String company;
 
-    @Column(nullable = false, updatable = false)
+    @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
-    @Column(nullable = false)
+    @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
 
+    @Column(name = "enrollment_date")
     private LocalDate enrollmentDate;
 
+    @Column(name = "last_activity_date")
     private LocalDate lastActivityDate;
 
-    @Column(length = 500)
+    @Column(columnDefinition = "TEXT")
     private String preferences;
 
-    @Column(length = 255)
+    @Column(name = "profile_image_url")
     private String profileImageUrl;
 
     // Relationships
+    
     @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @Builder.Default
     private List<Transaction> transactions = new ArrayList<>();
 
-    @OneToOne(mappedBy = "customer", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToOne(mappedBy = "customer", cascade = CascadeType.ALL)
     private LoyaltyPoints loyaltyPoints;
 
     @ManyToMany(fetch = FetchType.LAZY)
@@ -113,11 +116,11 @@ public class Customer {
 
     @ManyToMany(mappedBy = "targetCustomers", fetch = FetchType.LAZY)
     @Builder.Default
-    private List<Promotion> promotions = new ArrayList<>();
+    private List<Promotion> applicablePromotions = new ArrayList<>();
 
     @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @Builder.Default
-    private List<RedemptionLog> redemptionLogs = new ArrayList<>();
+    private List<RedemptionLog> redemptions = new ArrayList<>();
 
     @PrePersist
     protected void onCreate() {
@@ -125,6 +128,12 @@ public class Customer {
         updatedAt = LocalDateTime.now();
         if (enrollmentDate == null) {
             enrollmentDate = LocalDate.now();
+        }
+        if (status == null) {
+            status = CustomerStatus.ACTIVE;
+        }
+        if (tier == null) {
+            tier = CustomerTier.BRONZE;
         }
         if (customerCode == null) {
             customerCode = generateCustomerCode();
@@ -137,28 +146,8 @@ public class Customer {
     }
 
     private String generateCustomerCode() {
-        return "CUST" + String.format("%06d", System.currentTimeMillis() % 1000000);
-    }
-
-    /**
-     * Customer status enumeration.
-     */
-    public enum CustomerStatus {
-        ACTIVE,
-        INACTIVE,
-        SUSPENDED,
-        PENDING_VERIFICATION
-    }
-
-    /**
-     * Customer tier enumeration for loyalty levels.
-     */
-    public enum CustomerTier {
-        BRONZE,
-        SILVER,
-        GOLD,
-        PLATINUM,
-        DIAMOND
+        return "CUST" + String.format("%06d", System.currentTimeMillis() % 1000000) + 
+               String.format("%04d", new Random().nextInt(10000));
     }
 
     /**
@@ -172,22 +161,18 @@ public class Customer {
      * Calculate customer age.
      */
     public int getAge() {
-        return LocalDate.now().getYear() - dateOfBirth.getYear();
+        if (dateOfBirth == null) return 0;
+        return (int) ChronoUnit.YEARS.between(dateOfBirth, LocalDate.now());
     }
 
     /**
-     * Add a transaction to the customer.
+     * Enums for Customer Status and Tier.
      */
-    public void addTransaction(Transaction transaction) {
-        transactions.add(transaction);
-        transaction.setCustomer(this);
+    public enum CustomerStatus {
+        ACTIVE, INACTIVE, SUSPENDED, DELETED
     }
 
-    /**
-     * Add a redeemed reward to the customer.
-     */
-    public void addRedeemedReward(Reward reward) {
-        redeemedRewards.add(reward);
+    public enum CustomerTier {
+        BRONZE, SILVER, GOLD, PLATINUM, DIAMOND
     }
 }
-

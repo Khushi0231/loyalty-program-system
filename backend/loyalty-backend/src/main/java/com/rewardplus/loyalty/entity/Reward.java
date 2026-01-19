@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -19,7 +20,8 @@ import java.util.List;
 @Table(name = "rewards", indexes = {
     @Index(name = "idx_reward_category", columnList = "category"),
     @Index(name = "idx_reward_status", columnList = "status"),
-    @Index(name = "idx_reward_expiry", columnList = "expiryDate")
+    @Index(name = "idx_reward_expiry", columnList = "expiry_date"),
+    @Index(name = "idx_reward_type", columnList = "type")
 })
 @Data
 @Builder
@@ -37,7 +39,7 @@ public class Reward {
     @Column(columnDefinition = "TEXT")
     private String description;
 
-    @Column(nullable = false, length = 50)
+    @Column(name = "reward_code", nullable = false, length = 50)
     private String rewardCode;
 
     @Enumerated(EnumType.STRING)
@@ -50,33 +52,33 @@ public class Reward {
     @Builder.Default
     private RewardCategory category = RewardCategory.PRODUCT;
 
-    @Column(nullable = false)
+    @Column(name = "points_required", nullable = false)
     private Long pointsRequired;
 
-    @Column(precision = 10, scale = 2)
-    private Double discountPercentage;
+    @Column(name = "discount_percentage", precision = 10, scale = 2)
+    private BigDecimal discountPercentage;
 
-    @Column(precision = 10, scale = 2)
-    private Double discountAmount;
+    @Column(name = "discount_amount", precision = 10, scale = 2)
+    private BigDecimal discountAmount;
 
-    @Column(precision = 10, scale = 2)
-    private Double cashValue;
+    @Column(name = "cash_value", precision = 10, scale = 2)
+    private BigDecimal cashValue;
 
-    @Column(length = 100)
+    @Column(name = "image_url", length = 100)
     private String imageUrl;
 
-    @Column(length = 255)
+    @Column(name = "terms_and_conditions", length = 255)
     private String termsAndConditions;
 
     @Column(nullable = false)
     @Builder.Default
     private Integer quantity = 0;
 
-    @Column(nullable = false)
+    @Column(name = "quantity_redeemed", nullable = false)
     @Builder.Default
     private Integer quantityRedeemed = 0;
 
-    @Column(nullable = false)
+    @Column(name = "quantity_per_customer", nullable = false)
     @Builder.Default
     private Integer quantityPerCustomer = 1;
 
@@ -85,31 +87,34 @@ public class Reward {
     @Builder.Default
     private RewardStatus status = RewardStatus.ACTIVE;
 
+    @Column(name = "start_date")
     private LocalDate startDate;
 
+    @Column(name = "expiry_date")
     private LocalDate expiryDate;
 
-    @Column(nullable = false, updatable = false)
+    @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
-    @Column(nullable = false)
+    @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
 
+    @Column(name = "published_date")
     private LocalDateTime publishedDate;
 
-    @Column(length = 500)
+    @Column(name = "redemption_instructions", length = 500)
     private String redemptionInstructions;
 
-    @Column(length = 100)
+    @Column(name = "vendor_name", length = 100)
     private String vendorName;
 
-    @Column(length = 50)
+    @Column(name = "vendor_code", length = 50)
     private String vendorCode;
 
-    @Column(length = 50)
+    @Column(name = "applicable_stores", length = 50)
     private String applicableStores;
 
-    @Column
+    @Column(name = "minimum_purchase_amount")
     private Integer minimumPurchaseAmount;
 
     @ManyToMany(mappedBy = "redeemedRewards", fetch = FetchType.LAZY)
@@ -197,6 +202,7 @@ public class Reward {
      */
     public enum RewardStatus {
         ACTIVE,
+        PAUSED,
         INACTIVE,
         EXPIRED,
         OUT_OF_STOCK,

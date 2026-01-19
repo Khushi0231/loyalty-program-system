@@ -11,6 +11,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
@@ -40,8 +41,8 @@ class RewardServiceTest {
         testReward.setRewardCode("RWD10PCT");
         testReward.setType(Reward.RewardType.DISCOUNT);
         testReward.setCategory(Reward.RewardCategory.PRODUCT);
-        testReward.setPointsRequired(500);
-        testReward.setDiscountPercentage(10.0);
+        testReward.setPointsRequired(500L);
+        testReward.setDiscountPercentage(BigDecimal.valueOf(10.0));
         testReward.setStatus(Reward.RewardStatus.ACTIVE);
         testReward.setStartDate(LocalDate.now());
         testReward.setExpiryDate(LocalDate.now().plusMonths(1));
@@ -55,8 +56,8 @@ class RewardServiceTest {
         inputDTO.setRewardCode("NEWRWD");
         inputDTO.setType(Reward.RewardType.DISCOUNT);
         inputDTO.setCategory(Reward.RewardCategory.PRODUCT);
-        inputDTO.setPointsRequired(1000);
-        inputDTO.setDiscountPercentage(15.0);
+        inputDTO.setPointsRequired(1000L);
+        inputDTO.setDiscountPercentage(BigDecimal.valueOf(15.0));
 
         when(rewardRepository.save(any(Reward.class))).thenAnswer(invocation -> {
             Reward saved = invocation.getArgument(0);
@@ -69,7 +70,7 @@ class RewardServiceTest {
         assertNotNull(result);
         assertEquals("New Reward", result.getName());
         assertEquals("NEWRWD", result.getRewardCode());
-        assertEquals(1000, result.getPointsRequired());
+        assertEquals(1000L, result.getPointsRequired());
 
         verify(rewardRepository, times(1)).save(any(Reward.class));
     }
@@ -112,7 +113,7 @@ class RewardServiceTest {
         reward2.setName("Free Shipping");
         reward2.setRewardCode("FREESHIP");
         reward2.setStatus(Reward.RewardStatus.ACTIVE);
-        reward2.setPointsRequired(400);
+        reward2.setPointsRequired(400L);
 
         when(rewardRepository.findByStatus(Reward.RewardStatus.ACTIVE))
             .thenReturn(Arrays.asList(testReward, reward2));
@@ -121,7 +122,7 @@ class RewardServiceTest {
 
         assertNotNull(results);
         assertEquals(2, results.size());
-        assertTrue(results.stream().allMatch(r -> r.getStatus().equals(Reward.RewardStatus.ACTIVE.name())));
+        assertTrue(results.stream().allMatch(r -> r.getStatus().equals(Reward.RewardStatus.ACTIVE)));
     }
 
     @Test
@@ -133,7 +134,7 @@ class RewardServiceTest {
 
         assertNotNull(results);
         assertEquals(1, results.size());
-        assertEquals(Reward.RewardCategory.PRODUCT.name(), results.get(0).getCategory());
+        assertEquals(Reward.RewardCategory.PRODUCT, results.get(0).getCategory());
     }
 
     @Test
@@ -144,7 +145,7 @@ class RewardServiceTest {
         RewardDTO result = rewardService.updateRewardStatus(1L, Reward.RewardStatus.PAUSED);
 
         assertNotNull(result);
-        assertEquals(Reward.RewardStatus.PAUSED.name(), result.getStatus());
+        assertEquals(Reward.RewardStatus.PAUSED, result.getStatus());
     }
 
     @Test
@@ -153,7 +154,7 @@ class RewardServiceTest {
         reward2.setId(2L);
         reward2.setName("$10 Discount");
         reward2.setRewardCode("DISCOUNT10");
-        reward2.setPointsRequired(1000);
+        reward2.setPointsRequired(1000L);
         reward2.setStatus(Reward.RewardStatus.ACTIVE);
 
         when(rewardRepository.findByStatusAndPointsRequiredLessThanEqual(

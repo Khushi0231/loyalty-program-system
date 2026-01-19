@@ -60,7 +60,7 @@ public class TransactionController {
 
     @GetMapping("/customer/{customerId}")
     @Operation(summary = "Get customer transactions", description = "Retrieve all transactions for a customer")
-    public ResponseEntity<ApiResponse<Page<TransactionDTO>>> getCustomerTransactions(
+    public ResponseEntity<ApiResponse<List<TransactionDTO>>> getCustomerTransactions(
             @PathVariable Long customerId,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size,

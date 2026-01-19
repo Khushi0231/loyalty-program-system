@@ -10,6 +10,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
@@ -40,13 +41,13 @@ public class RewardDTO {
     private Long pointsRequired;
 
     @DecimalMin(value = "0.0", message = "Discount percentage cannot be negative")
-    private Double discountPercentage;
+    private BigDecimal discountPercentage;
 
     @DecimalMin(value = "0.0", message = "Discount amount cannot be negative")
-    private Double discountAmount;
+    private BigDecimal discountAmount;
 
     @DecimalMin(value = "0.0", message = "Cash value cannot be negative")
-    private Double cashValue;
+    private BigDecimal cashValue;
 
     private String imageUrl;
     private String termsAndConditions;

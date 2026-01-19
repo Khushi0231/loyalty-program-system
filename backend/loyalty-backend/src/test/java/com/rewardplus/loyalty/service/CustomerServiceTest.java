@@ -52,10 +52,10 @@ class CustomerServiceTest {
         testPoints = new LoyaltyPoints();
         testPoints.setId(1L);
         testPoints.setCustomer(testCustomer);
-        testPoints.setCurrentBalance(500);
-        testPoints.setLifetimePoints(500);
-        testPoints.setPointsEarned(500);
-        testPoints.setPointsRedeemed(0);
+        testPoints.setCurrentBalance(500L);
+        testPoints.setLifetimePoints(500L);
+        testPoints.setPointsEarned(500L);
+        testPoints.setPointsRedeemed(0L);
     }
 
     @Test
@@ -84,8 +84,8 @@ class CustomerServiceTest {
         assertEquals("John", result.getFirstName());
         assertEquals("Doe", result.getLastName());
         assertEquals("john.doe@email.com", result.getEmail());
-        assertEquals(100, result.getWelcomeBonusPoints());
-        assertEquals(Customer.CustomerTier.BRONZE.name(), result.getTier());
+        assertEquals(100L, result.getWelcomeBonusPoints());
+        assertEquals(Customer.CustomerTier.BRONZE, result.getTier());
 
         verify(customerRepository, times(1)).save(any(Customer.class));
         verify(loyaltyPointsRepository, times(1)).save(any(LoyaltyPoints.class));
@@ -121,8 +121,8 @@ class CustomerServiceTest {
         LoyaltyPointsDTO result = customerService.getCustomerPointsBalance(1L);
 
         assertNotNull(result);
-        assertEquals(500, result.getCurrentBalance());
-        assertEquals(500, result.getLifetimePoints());
+        assertEquals(500L, result.getCurrentBalance());
+        assertEquals(500L, result.getLifetimePoints());
     }
 
     @Test
@@ -142,7 +142,7 @@ class CustomerServiceTest {
         LoyaltyPointsDTO result = customerService.getCustomerPointsBalance(1L);
 
         assertNotNull(result);
-        assertEquals(0, result.getCurrentBalance());
+        assertEquals(0L, result.getCurrentBalance());
     }
 }
 

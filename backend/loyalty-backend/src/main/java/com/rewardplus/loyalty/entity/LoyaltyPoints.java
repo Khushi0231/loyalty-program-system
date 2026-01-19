@@ -35,27 +35,27 @@ public class LoyaltyPoints {
     @JoinColumn(name = "transaction_id")
     private Transaction transaction;
 
-    @Column(nullable = false)
+    @Column(name = "points_earned", nullable = false)
     @Builder.Default
     private Long pointsEarned = 0L;
 
-    @Column(nullable = false)
+    @Column(name = "points_redeemed", nullable = false)
     @Builder.Default
     private Long pointsRedeemed = 0L;
 
-    @Column(nullable = false)
+    @Column(name = "points_expired", nullable = false)
     @Builder.Default
     private Long pointsExpired = 0L;
 
-    @Column(nullable = false)
+    @Column(name = "points_adjusted", nullable = false)
     @Builder.Default
     private Long pointsAdjusted = 0L;
 
-    @Column(nullable = false)
+    @Column(name = "current_balance", nullable = false)
     @Builder.Default
     private Long currentBalance = 0L;
 
-    @Column(nullable = false)
+    @Column(name = "lifetime_points", nullable = false)
     @Builder.Default
     private Long lifetimePoints = 0L;
 
@@ -64,22 +64,22 @@ public class LoyaltyPoints {
     @Builder.Default
     private PointsStatus status = PointsStatus.ACTIVE;
 
-    @Column
+    @Column(name = "last_earned_date")
     private LocalDateTime lastEarnedDate;
 
-    @Column
+    @Column(name = "last_redeemed_date")
     private LocalDateTime lastRedeemedDate;
 
-    @Column
+    @Column(name = "last_adjusted_date")
     private LocalDateTime lastAdjustedDate;
 
-    @Column(nullable = false, updatable = false)
+    @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
-    @Column(nullable = false)
+    @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
 
-    @Column
+    @Column(name = "points_expiration_date")
     private LocalDateTime pointsExpirationDate;
 
     @Column(length = 500)

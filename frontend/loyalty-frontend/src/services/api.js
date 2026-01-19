@@ -29,7 +29,8 @@ export const transactionAPI = {
 export const rewardAPI = {
   getAll: () => api.get('/v1/rewards/active'),
   getAvailable: () => api.get('/v1/rewards/available'),
-  redeem: (customerId, rewardId) => api.post(`/v1/rewards/redeem?customerId=${customerId}&rewardId=${rewardId}`)
+  redeem: (customerId, rewardId) => api.post(`/v1/rewards/redeem?customerId=${customerId}&rewardId=${rewardId}`),
+  getRecentRedemptions: (limit = 10) => api.get(`/v1/rewards/redemptions/recent?limit=${limit}`)
 }
 
 // Promotion API

@@ -1,19 +1,77 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Card } from '../components/Card'
 import { Button } from '../components/Button'
 import { Input } from '../components/Input'
 import { Select } from '../components/Select'
 import { Modal } from '../components/Modal'
-import { Megaphone, Users, Target, Plus, BarChart3 } from 'lucide-react'
+import { Megaphone, Users, Target, Plus, BarChart3, Loader2 } from 'lucide-react'
+import { promotionAPI } from '../services/api'
 
 const MarketingDashboard = () => {
   const [showCreateModal, setShowCreateModal] = useState(false)
-  const [promotions, setPromotions] = useState([
-    { id: 1, name: 'New Year Bonus', type: 'DOUBLE_POINTS', status: 'ACTIVE', startDate: '2024-01-01', endDate: '2024-01-31', usage: 156 },
-    { id: 2, name: 'Spring Sale', type: 'LOYALTY_BOOST', status: 'ACTIVE', startDate: '2024-03-01', endDate: '2024-03-31', usage: 89 },
-    { id: 3, name: 'Senior Discount', type: 'DISCOUNT', status: 'SCHEDULED', startDate: '2024-04-01', endDate: '2024-04-30', usage: 0 },
-    { id: 4, name: 'Student Special', type: 'DISCOUNT', status: 'ACTIVE', startDate: '2024-01-01', endDate: '2024-12-31', usage: 234 },
-  ])
+  const [promotions, setPromotions] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [creating, setCreating] = useState(false)
+
+  const [promoForm, setPromoForm] = useState({
+    name: '',
+    description: '',
+    type: 'DISCOUNT',
+    status: 'ACTIVE',
+    startDate: '',
+    endDate: '',
+    bonusPointsMultiplier: 1.0,
+    minimumPurchaseAmount: 0,
+    discountPercentage: 0,
+    discountAmount: 0
+  })
+
+  useEffect(() => {
+    fetchPromotions()
+  }, [])
+
+  const fetchPromotions = async () => {
+    try {
+      setLoading(true)
+      const response = await promotionAPI.getAll()
+      console.log('Marketing: Fetching promotions response:', response.data)
+      const data = response.data.data?.content || response.data.data || []
+      console.log('Marketing: Parsed data:', data)
+      setPromotions(data)
+    } catch (error) {
+      console.error('Failed to fetch promotions:', error)
+      console.error('Error details:', error.response || error.message)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleCreate = async (e) => {
+    e.preventDefault()
+    try {
+      setCreating(true)
+      await promotionAPI.create(promoForm)
+      setShowCreateModal(false)
+      setPromoForm({
+        name: '',
+        description: '',
+        type: 'DISCOUNT',
+        status: 'ACTIVE',
+        startDate: '',
+        endDate: '',
+        bonusPointsMultiplier: 1.0,
+        minimumPurchaseAmount: 0,
+        discountPercentage: 0,
+        discountAmount: 0
+      })
+      fetchPromotions()
+    } catch (error) {
+      console.error('Failed to create promotion:', error)
+      alert('Failed to create promotion. Please check the logs.')
+    } finally {
+      setCreating(false)
+    }
+  }
 
   const typeOptions = [
     { value: 'DISCOUNT', label: 'Discount' },
@@ -57,7 +115,7 @@ const MarketingDashboard = () => {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-purple-100">Active Promotions</p>
-              <p className="text-3xl font-bold">{promotions.filter(p => p.status === 'ACTIVE').length}</p>
+              <p className="text-3xl font-bold">{loading ? '...' : promotions.filter(p => p.status === 'ACTIVE').length}</p>
             </div>
             <Megaphone className="h-10 w-10 text-purple-200" />
           </div>
@@ -65,8 +123,8 @@ const MarketingDashboard = () => {
         <Card>
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-gray-500">Total Usage</p>
-              <p className="text-2xl font-bold text-gray-800">{promotions.reduce((sum, p) => sum + p.usage, 0)}</p>
+              <p className="text-gray-500">Total Promotions</p>
+              <p className="text-2xl font-bold text-gray-800">{loading ? '...' : promotions.length}</p>
             </div>
             <BarChart3 className="h-10 w-10 text-gray-300" />
           </div>
@@ -75,7 +133,7 @@ const MarketingDashboard = () => {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-gray-500">Scheduled</p>
-              <p className="text-2xl font-bold text-gray-800">{promotions.filter(p => p.status === 'SCHEDULED').length}</p>
+              <p className="text-2xl font-bold text-gray-800">{loading ? '...' : promotions.filter(p => p.status === 'SCHEDULED' || p.status === 'DRAFT').length}</p>
             </div>
             <Target className="h-10 w-10 text-blue-400" />
           </div>
@@ -93,115 +151,130 @@ const MarketingDashboard = () => {
 
       {/* Promotions List */}
       <Card title="Promotions">
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Name</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Type</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Duration</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Usage</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {promotions.map((promo) => (
-                <tr key={promo.id} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm font-medium text-gray-900">{promo.name}</div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span className="px-2 py-1 bg-gray-100 text-gray-700 rounded text-xs">{promo.type}</span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span className={`px-2 py-1 rounded text-xs ${getStatusColor(promo.status)}`}>{promo.status}</span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {promo.startDate} - {promo.endDate}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {promo.usage} redemptions
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm">
-                    <Button variant="secondary" size="sm">Edit</Button>
-                  </td>
+        {loading ? (
+          <div className="flex justify-center items-center py-12">
+            <Loader2 className="h-8 w-8 text-primary-500 animate-spin" />
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Name</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Type</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Duration</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {promotions.map((promo) => (
+                  <tr key={promo.id} className="hover:bg-gray-50">
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm font-medium text-gray-900">{promo.name}</div>
+                      <div className="text-xs text-gray-500 truncate max-w-xs">{promo.description}</div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className="px-2 py-1 bg-gray-100 text-gray-700 rounded text-xs">{promo.type}</span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className={`px-2 py-1 rounded text-xs ${getStatusColor(promo.status)}`}>{promo.status}</span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      {promo.startDate} - {promo.endDate}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm">
+                      <Button variant="secondary" size="sm">Edit</Button>
+                    </td>
+                  </tr>
+                ))}
+                {promotions.length === 0 && (
+                  <tr>
+                    <td colSpan="5" className="px-6 py-4 text-center text-gray-500 text-sm">No promotions found.</td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        )}
       </Card>
-
-      {/* Customer Segmentation */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card title="Customer Segments">
-          <div className="space-y-3">
-            {[
-              { name: 'High Value Customers', count: 1250, criteria: 'Spend > $1000/month' },
-              { name: 'New Customers', count: 340, criteria: 'Enrolled < 30 days' },
-              { name: 'At Risk', count: 89, criteria: 'No activity > 60 days' },
-              { name: 'Birthday This Month', count: 45, criteria: 'DOB this month' },
-            ].map((segment, idx) => (
-              <div key={idx} className="p-4 bg-gray-50 rounded-lg">
-                <div className="flex justify-between items-start">
-                  <div>
-                    <h4 className="font-medium text-gray-800">{segment.name}</h4>
-                    <p className="text-sm text-gray-500">{segment.criteria}</p>
-                  </div>
-                  <span className="text-lg font-bold text-primary-600">{segment.count}</span>
-                </div>
-              </div>
-            ))}
-          </div>
-        </Card>
-
-        <Card title="Campaign Performance">
-          <div className="space-y-4">
-            {promotions.filter(p => p.status === 'ACTIVE').map((promo) => (
-              <div key={promo.id} className="p-4 border border-gray-200 rounded-lg">
-                <div className="flex justify-between items-center mb-2">
-                  <h4 className="font-medium text-gray-800">{promo.name}</h4>
-                  <span className="text-sm text-gray-500">{promo.usage} uses</span>
-                </div>
-                <div className="h-2 bg-gray-200 rounded-full">
-                  <div className="h-full bg-primary-500 rounded-full" style={{ width: `${Math.min(promo.usage / 5, 100)}%` }} />
-                </div>
-              </div>
-            ))}
-          </div>
-        </Card>
-      </div>
 
       {/* Create Promotion Modal */}
       <Modal isOpen={showCreateModal} onClose={() => setShowCreateModal(false)} title="Create New Promotion" size="lg">
-        <div className="space-y-4">
-          <Input label="Promotion Name" name="name" required />
-          
+        <form onSubmit={handleCreate} className="space-y-4">
+          <Input
+            label="Promotion Name"
+            required
+            value={promoForm.name}
+            onChange={(e) => setPromoForm({ ...promoForm, name: e.target.value })}
+          />
+          <Input
+            label="Description"
+            value={promoForm.description}
+            onChange={(e) => setPromoForm({ ...promoForm, description: e.target.value })}
+          />
+
           <div className="grid grid-cols-2 gap-4">
-            <Select label="Promotion Type" name="type" options={typeOptions} placeholder="Select type" />
-            <Select label="Status" name="status" options={statusOptions} placeholder="Select status" />
+            <Select
+              label="Promotion Type"
+              options={typeOptions}
+              value={promoForm.type}
+              onChange={(e) => setPromoForm({ ...promoForm, type: e.target.value })}
+            />
+            <Select
+              label="Status"
+              options={statusOptions}
+              value={promoForm.status}
+              onChange={(e) => setPromoForm({ ...promoForm, status: e.target.value })}
+            />
           </div>
-          
+
           <div className="grid grid-cols-2 gap-4">
-            <Input label="Start Date" name="startDate" type="date" />
-            <Input label="End Date" name="endDate" type="date" />
+            <Input
+              label="Start Date"
+              type="date"
+              required
+              value={promoForm.startDate}
+              onChange={(e) => setPromoForm({ ...promoForm, startDate: e.target.value })}
+            />
+            <Input
+              label="End Date"
+              type="date"
+              required
+              value={promoForm.endDate}
+              onChange={(e) => setPromoForm({ ...promoForm, endDate: e.target.value })}
+            />
           </div>
-          
+
           <div className="grid grid-cols-2 gap-4">
-            <Input label="Bonus Points Multiplier" name="multiplier" type="number" placeholder="e.g., 2.0" />
-            <Input label="Usage Limit (0 = unlimited)" name="usageLimit" type="number" placeholder="0" />
+            <Input
+              label="Bonus Points Multiplier"
+              type="number"
+              step="0.1"
+              value={promoForm.bonusPointsMultiplier}
+              onChange={(e) => setPromoForm({ ...promoForm, bonusPointsMultiplier: parseFloat(e.target.value) })}
+            />
+            <Input
+              label="Minimum Purchase"
+              type="number"
+              value={promoForm.minimumPurchaseAmount}
+              onChange={(e) => setPromoForm({ ...promoForm, minimumPurchaseAmount: parseFloat(e.target.value) })}
+            />
           </div>
-          
+
           <div className="flex gap-2 pt-4">
-            <Button variant="secondary" onClick={() => setShowCreateModal(false)} className="flex-1">Cancel</Button>
-            <Button onClick={() => setShowCreateModal(false)} className="flex-1">Create Promotion</Button>
+            <Button variant="secondary" type="button" onClick={() => setShowCreateModal(false)} className="flex-1">Cancel</Button>
+            <Button type="submit" className="flex-1" disabled={creating}>
+              {creating ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Plus className="h-4 w-4 mr-2" />}
+              Create Promotion
+            </Button>
           </div>
-        </div>
+        </form>
       </Modal>
     </div>
   )
 }
 
 export default MarketingDashboard
+
 

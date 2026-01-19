@@ -37,6 +37,9 @@ class RedemptionServiceTest {
     @Mock
     private RewardRepository rewardRepository;
 
+    @Mock
+    private com.rewardplus.loyalty.repository.CustomerRepository customerRepository;
+
     @InjectMocks
     private RedemptionService redemptionService;
 
@@ -60,16 +63,16 @@ class RedemptionServiceTest {
         testPoints = new LoyaltyPoints();
         testPoints.setId(1L);
         testPoints.setCustomer(testCustomer);
-        testPoints.setCurrentBalance(1000);
-        testPoints.setLifetimePoints(1500);
-        testPoints.setPointsEarned(1500);
-        testPoints.setPointsRedeemed(500);
+        testPoints.setCurrentBalance(1000L);
+        testPoints.setLifetimePoints(1500L);
+        testPoints.setPointsEarned(1500L);
+        testPoints.setPointsRedeemed(500L);
 
         testReward = new Reward();
         testReward.setId(1L);
         testReward.setName("10% Off Next Purchase");
         testReward.setRewardCode("RWD10PCT");
-        testReward.setPointsRequired(500);
+        testReward.setPointsRequired(500L);
         testReward.setStatus(Reward.RewardStatus.ACTIVE);
 
         testRedemption = new RedemptionLog();
@@ -77,7 +80,7 @@ class RedemptionServiceTest {
         testRedemption.setRedemptionCode("RDM001");
         testRedemption.setCustomer(testCustomer);
         testRedemption.setReward(testReward);
-        testRedemption.setPointsRedeemed(500);
+        testRedemption.setPointsRedeemed(500L);
         testRedemption.setStatus(RedemptionLog.RedemptionStatus.COMPLETED);
         testRedemption.setRedemptionDate(LocalDateTime.now());
     }
@@ -100,8 +103,8 @@ class RedemptionServiceTest {
         RedemptionDTO result = redemptionService.redeemReward(1L, 1L, inputDTO);
 
         assertNotNull(result);
-        assertEquals(500, result.getPointsRedeemed());
-        assertEquals(RedemptionLog.RedemptionStatus.COMPLETED.name(), result.getStatus());
+        assertEquals(500L, result.getPointsRedeemed());
+        assertEquals(RedemptionLog.RedemptionStatus.COMPLETED, result.getStatus());
         assertNotNull(result.getRedemptionCode());
 
         verify(redemptionLogRepository, times(1)).save(any(RedemptionLog.class));
@@ -109,7 +112,7 @@ class RedemptionServiceTest {
 
     @Test
     void redeemReward_InsufficientPoints() {
-        testPoints.setCurrentBalance(100);
+        testPoints.setCurrentBalance(100L);
 
         RedemptionDTO inputDTO = new RedemptionDTO();
 
@@ -154,7 +157,7 @@ class RedemptionServiceTest {
 
         assertNotNull(result);
         assertEquals("RDM001", result.getRedemptionCode());
-        assertEquals(500, result.getPointsRedeemed());
+        assertEquals(500L, result.getPointsRedeemed());
     }
 
     @Test
@@ -166,7 +169,7 @@ class RedemptionServiceTest {
         RedemptionDTO result = redemptionService.markAsUsed(1L);
 
         assertNotNull(result);
-        assertEquals(RedemptionLog.RedemptionStatus.USED.name(), result.getStatus());
+        assertEquals(RedemptionLog.RedemptionStatus.USED, result.getStatus());
     }
 
     @Test
@@ -179,7 +182,7 @@ class RedemptionServiceTest {
         RedemptionDTO result = redemptionService.cancelRedemption(1L, "Customer requested");
 
         assertNotNull(result);
-        assertEquals(RedemptionLog.RedemptionStatus.CANCELLED.name(), result.getStatus());
+        assertEquals(RedemptionLog.RedemptionStatus.CANCELLED, result.getStatus());
         assertEquals("Customer requested", result.getCancellationReason());
     }
 }

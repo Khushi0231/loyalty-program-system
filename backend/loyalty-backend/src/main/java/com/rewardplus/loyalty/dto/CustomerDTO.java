@@ -3,6 +3,7 @@ package com.rewardplus.loyalty.dto;
 import com.rewardplus.loyalty.entity.Customer;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Past;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
@@ -39,7 +40,7 @@ public class CustomerDTO {
     @Size(max = 20, message = "Phone must be less than 20 characters")
     private String phone;
 
-    @NotBlank(message = "Date of birth is required")
+    @NotNull(message = "Date of birth is required")
     @Past(message = "Date of birth must be in the past")
     private LocalDate dateOfBirth;
 

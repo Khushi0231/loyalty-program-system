@@ -11,6 +11,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
@@ -42,7 +43,7 @@ class PromotionServiceTest {
         testPromotion.setStatus(Promotion.PromotionStatus.ACTIVE);
         testPromotion.setStartDate(LocalDate.of(2024, 1, 1));
         testPromotion.setEndDate(LocalDate.of(2024, 1, 31));
-        testPromotion.setBonusPointsMultiplier(2.0);
+        testPromotion.setBonusPointsMultiplier(BigDecimal.valueOf(2.0));
     }
 
     @Test
@@ -52,9 +53,9 @@ class PromotionServiceTest {
         inputDTO.setDescription("20% off + 2x points");
         inputDTO.setPromotionCode("SPRING2024");
         inputDTO.setPromotionType(Promotion.PromotionType.LOYALTY_BOOST);
-        inputDTO.setBonusPointsMultiplier(2.0);
-        inputDTO.setStartDate("2024-03-01");
-        inputDTO.setEndDate("2024-03-31");
+        inputDTO.setBonusPointsMultiplier(BigDecimal.valueOf(2.0));
+        inputDTO.setStartDate(LocalDate.of(2024, 3, 1));
+        inputDTO.setEndDate(LocalDate.of(2024, 3, 31));
 
         when(promotionRepository.save(any(Promotion.class))).thenAnswer(invocation -> {
             Promotion saved = invocation.getArgument(0);
@@ -105,7 +106,7 @@ class PromotionServiceTest {
 
         assertNotNull(results);
         assertEquals(2, results.size());
-        assertTrue(results.stream().allMatch(p -> p.getStatus().equals(Promotion.PromotionStatus.ACTIVE.name())));
+        assertTrue(results.stream().allMatch(p -> p.getStatus().equals(Promotion.PromotionStatus.ACTIVE)));
     }
 
     @Test
@@ -117,7 +118,7 @@ class PromotionServiceTest {
         PromotionDTO result = promotionService.activatePromotion(1L);
 
         assertNotNull(result);
-        assertEquals(Promotion.PromotionStatus.ACTIVE.name(), result.getStatus());
+        assertEquals(Promotion.PromotionStatus.ACTIVE, result.getStatus());
     }
 
     @Test
@@ -128,7 +129,7 @@ class PromotionServiceTest {
         PromotionDTO result = promotionService.pausePromotion(1L);
 
         assertNotNull(result);
-        assertEquals(Promotion.PromotionStatus.PAUSED.name(), result.getStatus());
+        assertEquals(Promotion.PromotionStatus.PAUSED, result.getStatus());
     }
 
     @Test
@@ -166,7 +167,7 @@ class PromotionServiceTest {
         PromotionDTO result = promotionService.updatePromotionStatus(1L, Promotion.PromotionStatus.EXPIRED);
 
         assertNotNull(result);
-        assertEquals(Promotion.PromotionStatus.EXPIRED.name(), result.getStatus());
+        assertEquals(Promotion.PromotionStatus.EXPIRED, result.getStatus());
     }
 }
 

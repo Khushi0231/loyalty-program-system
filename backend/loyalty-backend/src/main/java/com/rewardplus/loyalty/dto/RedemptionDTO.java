@@ -2,6 +2,7 @@ package com.rewardplus.loyalty.dto;
 
 import com.rewardplus.loyalty.entity.RedemptionLog;
 import com.rewardplus.loyalty.entity.Reward;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import lombok.AllArgsConstructor;

@@ -144,7 +144,7 @@ public class AnalyticsService {
         Map<String, Long> channelCounts = new HashMap<>();
         for (RedemptionLog.RedemptionChannel channel : RedemptionLog.RedemptionChannel.values()) {
             channelCounts.put(channel.name(), 
-                redemptionLogRepository.findByChannel(channel).size());
+                (long) redemptionLogRepository.findByChannel(channel).size());
         }
         trends.put("byChannel", channelCounts);
 
@@ -190,7 +190,7 @@ public class AnalyticsService {
         Map<String, Long> transactionTypeCounts = new HashMap<>();
         for (Transaction.TransactionType type : Transaction.TransactionType.values()) {
             transactionTypeCounts.put(type.name(), 
-                transactionRepository.findByTransactionType(type).size());
+                (long) transactionRepository.findByTransactionType(type).size());
         }
         analytics.put("byTransactionType", transactionTypeCounts);
 

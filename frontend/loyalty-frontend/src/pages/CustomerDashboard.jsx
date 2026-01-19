@@ -1,25 +1,45 @@
 import React, { useState, useEffect } from 'react'
-import { Card, CardHeader, CardBody } from '../components/Card'
+import { Card } from '../components/Card'
 import { Button } from '../components/Button'
-import { Gift, History, Star, TrendingUp } from 'lucide-react'
+import { Gift, History, Star, TrendingUp, Loader2 } from 'lucide-react'
+import { customerAPI, transactionAPI, rewardAPI, promotionAPI } from '../services/api'
 
 const CustomerDashboard = () => {
-  const [points, setPoints] = useState(4000)
-  const [tier, setTier] = useState('GOLD')
-  const [transactions, setTransactions] = useState([
-    { id: 1, date: '2024-01-22', description: 'Purchase at Main Street Store', points: 450, amount: 45.00 },
-    { id: 2, date: '2024-01-20', description: 'Bonus Points', points: 100, amount: 0 },
-    { id: 3, date: '2024-01-18', description: 'Purchase at Downtown Store', points: 320, amount: 32.00 },
-  ])
-  const [rewards, setRewards] = useState([
-    { id: 1, name: '10% Off Next Purchase', points: 500, category: 'Discount' },
-    { id: 2, name: '$25 Gift Card', points: 2500, category: 'Gift Card' },
-    { id: 3, name: 'Free Shipping', points: 400, category: 'Service' },
-  ])
-  const [promotions, setPromotions] = useState([
-    { id: 1, name: 'New Year Bonus', description: 'Double points in January!', endDate: '2024-01-31' },
-    { id: 2, name: 'Spring Sale', description: '20% off + 2x points', endDate: '2024-03-31' },
-  ])
+  // Demo customer ID for this walkthrough
+  const demoCustomerId = 1
+
+  const [points, setPoints] = useState(0)
+  const [tier, setTier] = useState('BRONZE')
+  const [transactions, setTransactions] = useState([])
+  const [rewards, setRewards] = useState([])
+  const [promotions, setPromotions] = useState([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    fetchDashboardData()
+  }, [])
+
+  const fetchDashboardData = async () => {
+    try {
+      setLoading(true)
+      const [pointsRes, transRes, rewardsRes, promoRes] = await Promise.all([
+        customerAPI.getPoints(demoCustomerId),
+        transactionAPI.getAll(demoCustomerId),
+        rewardAPI.getAvailable(),
+        promotionAPI.getForCustomer(demoCustomerId)
+      ])
+
+      setPoints(pointsRes.data.data.currentBalance || 0)
+      setTier(pointsRes.data.data.tier || 'BRONZE')
+      setTransactions(transRes.data.data?.content || transRes.data.data || [])
+      setRewards(rewardsRes.data.data?.content || rewardsRes.data.data || [])
+      setPromotions(promoRes.data.data?.content || promoRes.data.data || [])
+    } catch (error) {
+      console.error('Failed to fetch dashboard data:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
 
   const tierProgress = {
     BRONZE: { current: 0, next: 1000 },
@@ -29,7 +49,16 @@ const CustomerDashboard = () => {
     DIAMOND: { current: 25000, next: Infinity }
   }
 
-  const progress = ((points - tierProgress[tier].current) / (tierProgress[tier].next - tierProgress[tier].current)) * 100
+  const progress = tierProgress[tier] ?
+    ((points - tierProgress[tier].current) / (tierProgress[tier].next - tierProgress[tier].current)) * 100 : 0
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <Loader2 className="h-12 w-12 text-primary-500 animate-spin" />
+      </div>
+    )
+  }
 
   return (
     <div className="space-y-6">
@@ -51,18 +80,18 @@ const CustomerDashboard = () => {
         <Card>
           <div className="flex items-center justify-between mb-4">
             <h3 className="font-semibold text-gray-800">Current Tier</h3>
-            <span className="px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-sm font-medium">{tier}</span>
+            <span className={`px-3 py-1 rounded-full text-sm font-medium ${tier === 'GOLD' ? 'bg-yellow-100 text-yellow-800' : tier === 'PLATINUM' ? 'bg-purple-100 text-purple-800' : 'bg-gray-100 text-gray-800'}`}>{tier}</span>
           </div>
           <div className="mb-2">
             <div className="flex justify-between text-sm text-gray-600 mb-1">
-              <span>{tierProgress[tier].current.toLocaleString()}</span>
-              <span>{tierProgress[tier].next === Infinity ? 'MAX' : tierProgress[tier].next.toLocaleString()}</span>
+              <span>{tierProgress[tier]?.current.toLocaleString()}</span>
+              <span>{tierProgress[tier]?.next === Infinity ? 'MAX' : tierProgress[tier]?.next.toLocaleString()}</span>
             </div>
             <div className="h-3 bg-gray-200 rounded-full overflow-hidden">
               <div className="h-full bg-gradient-to-r from-yellow-400 to-yellow-600 transition-all" style={{ width: `${Math.min(progress, 100)}%` }} />
             </div>
           </div>
-          <p className="text-sm text-gray-500">{Math.round(tierProgress[tier].next - points).toLocaleString()} points to {tier === 'DIAMOND' ? 'Lifetime' : 'next tier'}</p>
+          <p className="text-sm text-gray-500">{tierProgress[tier]?.next === Infinity ? 'Maximum Tier Reached' : `${Math.max(0, Math.round(tierProgress[tier]?.next - points)).toLocaleString()} points to next tier`}</p>
         </Card>
 
         <Card>
@@ -87,48 +116,48 @@ const CustomerDashboard = () => {
         {/* Recent Transactions */}
         <Card title="Recent Transactions">
           <div className="space-y-3">
-            {transactions.map((tx) => (
+            {transactions.length > 0 ? transactions.map((tx) => (
               <div key={tx.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                 <div>
-                  <p className="font-medium text-gray-800">{tx.description}</p>
-                  <p className="text-sm text-gray-500">{tx.date}</p>
+                  <p className="font-medium text-gray-800">{tx.description || tx.type || 'Transaction'}</p>
+                  <p className="text-sm text-gray-500">{tx.transactionDate || tx.date}</p>
                 </div>
                 <div className="text-right">
-                  <p className="font-semibold text-green-600">+{tx.points} pts</p>
-                  {tx.amount > 0 && <p className="text-sm text-gray-500">${tx.amount.toFixed(2)}</p>}
+                  <p className="font-semibold text-green-600">+{tx.pointsEarned || tx.points} pts</p>
+                  {(tx.amount || tx.transactionAmount) > 0 && <p className="text-sm text-gray-500">${(tx.amount || tx.transactionAmount).toFixed(2)}</p>}
                 </div>
               </div>
-            ))}
+            )) : <p className="text-gray-500 py-4 text-center">No recent transactions.</p>}
           </div>
         </Card>
 
         {/* Available Rewards */}
         <Card title="Available Rewards">
           <div className="space-y-3">
-            {rewards.map((reward) => (
+            {rewards.length > 0 ? rewards.slice(0, 3).map((reward) => (
               <div key={reward.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                 <div className="flex items-center">
                   <Gift className="h-8 w-8 text-primary-500 mr-3" />
                   <div>
                     <p className="font-medium text-gray-800">{reward.name}</p>
-                    <p className="text-sm text-gray-500">{reward.category}</p>
+                    <p className="text-sm text-gray-500">{reward.rewardType || reward.category}</p>
                   </div>
                 </div>
                 <div className="text-right">
-                  <p className="font-semibold text-primary-600">{reward.points.toLocaleString()} pts</p>
+                  <p className="font-semibold text-primary-600">{(reward.pointsRequired || reward.points).toLocaleString()} pts</p>
                   <Button variant="primary" size="sm" className="mt-1">
                     Redeem
                   </Button>
                 </div>
               </div>
-            ))}
+            )) : <p className="text-gray-500 py-4 text-center">No rewards available.</p>}
           </div>
         </Card>
 
         {/* Promotions */}
         <Card title="Active Promotions" className="lg:col-span-2">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {promotions.map((promo) => (
+            {promotions.length > 0 ? promotions.map((promo) => (
               <div key={promo.id} className="p-4 bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg border border-purple-100">
                 <div className="flex items-start justify-between">
                   <div>
@@ -136,10 +165,10 @@ const CustomerDashboard = () => {
                     <p className="text-sm text-gray-600 mt-1">{promo.description}</p>
                     <p className="text-xs text-purple-600 mt-2">Ends: {promo.endDate}</p>
                   </div>
-                  <span className="px-2 py-1 bg-purple-100 text-purple-700 rounded text-xs font-medium">Active</span>
+                  <span className="px-2 py-1 bg-purple-100 text-purple-700 rounded text-xs font-medium">{promo.status || 'Active'}</span>
                 </div>
               </div>
-            ))}
+            )) : <p className="text-gray-500 py-4 text-center">No active promotions.</p>}
           </div>
         </Card>
       </div>
@@ -148,4 +177,5 @@ const CustomerDashboard = () => {
 }
 
 export default CustomerDashboard
+
 

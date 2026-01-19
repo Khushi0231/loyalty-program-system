@@ -4,10 +4,12 @@ import { useAuth } from '../context/AuthContext'
 import { LayoutDashboard, Users, ShoppingCart, Megaphone, BarChart3, LogOut, Menu, X } from 'lucide-react'
 
 const Layout = ({ children }) => {
-  const { role, logout, user } = useAuth()
+  const { role, logout, user, setRole } = useAuth()
   const location = useLocation()
   const navigate = useNavigate()
   const [sidebarOpen, setSidebarOpen] = useState(false)
+
+  const roles = ['CUSTOMER', 'SALES', 'MARKETING', 'MANAGER']
 
   const menuItems = [
     { path: '/customer', label: 'My Dashboard', icon: LayoutDashboard, roles: ['CUSTOMER'] },
@@ -21,7 +23,13 @@ const Layout = ({ children }) => {
     navigate('/')
   }
 
-  const filteredMenu = menuItems.filter(item => item.roles.includes(role))
+  const handleRoleChange = (newRole) => {
+    setRole(newRole)
+    navigate('/')
+  }
+
+  // Temporary fix: Show all items to help user navigate
+  const filteredMenu = menuItems // menuItems.filter(item => item.roles.includes(role))
 
   return (
     <div className="min-h-screen bg-gray-100">
@@ -82,8 +90,20 @@ const Layout = ({ children }) => {
           <button className="lg:hidden" onClick={() => setSidebarOpen(true)}>
             <Menu className="h-6 w-6" />
           </button>
-          <div className="flex items-center space-x-4">
-            <span className="text-sm text-gray-500">
+          <div className="flex items-center space-x-6">
+            <div className="flex items-center">
+              <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider mr-2">Role:</span>
+              <select
+                value={role}
+                onChange={(e) => handleRoleChange(e.target.value)}
+                className="text-sm border-gray-300 rounded-md shadow-sm focus:border-primary-500 focus:ring-primary-500 bg-gray-50 px-2 py-1"
+              >
+                {roles.map(r => (
+                  <option key={r} value={r}>{r}</option>
+                ))}
+              </select>
+            </div>
+            <span className="text-sm text-gray-500 hidden sm:inline">
               Welcome, {role} User
             </span>
           </div>

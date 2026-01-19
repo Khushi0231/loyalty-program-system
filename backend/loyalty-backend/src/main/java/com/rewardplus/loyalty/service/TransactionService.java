@@ -21,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -104,7 +105,7 @@ public class TransactionService {
         Promotion activePromotion = findApplicablePromotion(customer, netAmount);
         if (activePromotion != null) {
             if (activePromotion.getBonusPointsMultiplier() != null) {
-                basePoints = (long) (basePoints * activePromotion.getBonusPointsMultiplier());
+                basePoints = BigDecimal.valueOf(basePoints).multiply(activePromotion.getBonusPointsMultiplier()).longValue();
             }
             if (activePromotion.getBonusPointsFixed() != null) {
                 basePoints += activePromotion.getBonusPointsFixed();
@@ -134,7 +135,7 @@ public class TransactionService {
     private boolean isPromotionApplicable(Promotion promo, Customer customer, BigDecimal amount) {
         // Check minimum purchase amount
         if (promo.getMinimumPurchaseAmount() != null && 
-            amount.compareTo(BigDecimal.valueOf(promo.getMinimumPurchaseAmount())) < 0) {
+            amount.compareTo(promo.getMinimumPurchaseAmount()) < 0) {
             return false;
         }
 
@@ -170,10 +171,12 @@ public class TransactionService {
             return false;
         }
 
-        // Check for new customer exclusivity
+        // Check for new customer exclusivity (enrolled in last 30 days)
         if (Boolean.TRUE.equals(promo.getExclusiveToNewCustomers())) {
-            // Could check enrollment date or transaction count
-            return false;
+            if (customer.getEnrollmentDate() == null || 
+                customer.getEnrollmentDate().isBefore(LocalDate.now().minusDays(30))) {
+                return false;
+            }
         }
 
         return true;

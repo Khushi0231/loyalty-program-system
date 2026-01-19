@@ -69,7 +69,7 @@ public class RewardController {
 
     @GetMapping("/available")
     @Operation(summary = "Get available rewards", description = "Retrieve rewards available for redemption")
-    public ResponseEntity<ApiResponse<Page<RewardDTO>>> getAvailableRewards(
+    public ResponseEntity<ApiResponse<List<RewardDTO>>> getAvailableRewards(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size) {
         Page<RewardDTO> rewards = rewardService.getAvailableRewards(PageRequest.of(page, size));
@@ -96,7 +96,7 @@ public class RewardController {
 
     @GetMapping("/search")
     @Operation(summary = "Search rewards", description = "Search rewards by name")
-    public ResponseEntity<ApiResponse<Page<RewardDTO>>> searchRewards(
+    public ResponseEntity<ApiResponse<List<RewardDTO>>> searchRewards(
             @RequestParam String query,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size) {
@@ -141,7 +141,7 @@ public class RewardController {
 
     @GetMapping("/redemptions/customer/{customerId}")
     @Operation(summary = "Get customer redemptions", description = "Retrieve redemption history for a customer")
-    public ResponseEntity<ApiResponse<Page<RedemptionDTO>>> getCustomerRedemptions(
+    public ResponseEntity<ApiResponse<List<RedemptionDTO>>> getCustomerRedemptions(
             @PathVariable Long customerId,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size) {

@@ -33,6 +33,9 @@ class TransactionServiceTest {
     private LoyaltyPointsRepository loyaltyPointsRepository;
 
     @Mock
+    private com.rewardplus.loyalty.repository.CustomerRepository customerRepository;
+
+    @Mock
     private LoyaltyPointsService loyaltyPointsService;
 
     @InjectMocks
@@ -58,10 +61,10 @@ class TransactionServiceTest {
         testPoints = new LoyaltyPoints();
         testPoints.setId(1L);
         testPoints.setCustomer(testCustomer);
-        testPoints.setCurrentBalance(1000);
-        testPoints.setLifetimePoints(1500);
-        testPoints.setPointsEarned(1500);
-        testPoints.setPointsRedeemed(500);
+        testPoints.setCurrentBalance(1000L);
+        testPoints.setLifetimePoints(1500L);
+        testPoints.setPointsEarned(1500L);
+        testPoints.setPointsRedeemed(500L);
         testPoints.setLastEarnedDate(LocalDateTime.now().minusDays(5));
 
         testTransaction = new Transaction();
@@ -96,8 +99,8 @@ class TransactionServiceTest {
 
         assertNotNull(result);
         assertEquals(new BigDecimal("100.00"), result.getAmount());
-        assertEquals(1000, result.getPointsEarned()); // 100 * 10 points per dollar
-        assertEquals(Transaction.TransactionStatus.COMPLETED.name(), result.getStatus());
+        assertEquals(1000L, result.getPointsEarned()); // 100 * 10 points per dollar
+        assertEquals(Transaction.TransactionStatus.COMPLETED, result.getStatus());
 
         verify(transactionRepository, times(1)).save(any(Transaction.class));
     }
@@ -120,7 +123,7 @@ class TransactionServiceTest {
         TransactionDTO result = transactionService.recordTransaction(1L, inputDTO);
 
         assertNotNull(result);
-        assertEquals(1000, result.getPointsEarned()); // Gold tier: 100 * 10 = 1000
+        assertEquals(1000L, result.getPointsEarned()); // Gold tier: 100 * 10 = 1000
     }
 
     @Test
@@ -169,13 +172,13 @@ class TransactionServiceTest {
     @Test
     void calculatePoints_GoldTierMultiplier() {
         long points = transactionService.calculatePoints(new BigDecimal("100.00"), Customer.CustomerTier.GOLD);
-        assertEquals(1000, points); // 100 * 10 * 1.0 (no gold bonus in base calculation)
+        assertEquals(1000L, points); // 100 * 10 * 1.0 (no gold bonus in base calculation)
     }
 
     @Test
     void calculatePoints_PlatinumTierMultiplier() {
         long points = transactionService.calculatePoints(new BigDecimal("100.00"), Customer.CustomerTier.PLATINUM);
-        assertEquals(1000, points);
+        assertEquals(1000L, points);
     }
 }
 

@@ -91,7 +91,7 @@ public class CustomerController {
      */
     @GetMapping
     @Operation(summary = "Get all customers", description = "Retrieve all customers with pagination support")
-    public ResponseEntity<ApiResponse<Page<CustomerDTO>>> getAllCustomers(
+    public ResponseEntity<ApiResponse<List<CustomerDTO>>> getAllCustomers(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size,
             @RequestParam(defaultValue = "createdAt") String sortBy,
@@ -135,7 +135,7 @@ public class CustomerController {
      */
     @GetMapping("/search")
     @Operation(summary = "Search customers", description = "Search customers by name, email, or customer code")
-    public ResponseEntity<ApiResponse<Page<CustomerDTO>>> searchCustomers(
+    public ResponseEntity<ApiResponse<List<CustomerDTO>>> searchCustomers(
             @RequestParam String query,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size) {

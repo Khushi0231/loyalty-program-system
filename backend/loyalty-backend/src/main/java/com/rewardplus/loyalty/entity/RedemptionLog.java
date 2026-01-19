@@ -16,8 +16,8 @@ import java.time.LocalDateTime;
 @Table(name = "redemption_logs", indexes = {
     @Index(name = "idx_redemption_customer", columnList = "customer_id"),
     @Index(name = "idx_redemption_reward", columnList = "reward_id"),
-    @Index(name = "idx_redemption_date", columnList = "redemptionDate"),
-    @Index(name = "idx_redemption_code", columnList = "redemptionCode")
+    @Index(name = "idx_redemption_date", columnList = "redemption_date"),
+    @Index(name = "idx_redemption_code", columnList = "redemption_code")
 })
 @Data
 @Builder
@@ -29,7 +29,7 @@ public class RedemptionLog {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, unique = true, length = 50)
+    @Column(name = "redemption_code", nullable = false, unique = true, length = 50)
     private String redemptionCode;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -40,7 +40,7 @@ public class RedemptionLog {
     @JoinColumn(name = "reward_id", nullable = false)
     private Reward reward;
 
-    @Column(nullable = false)
+    @Column(name = "points_redeemed", nullable = false)
     private Long pointsRedeemed;
 
     @Enumerated(EnumType.STRING)
@@ -52,46 +52,49 @@ public class RedemptionLog {
     @Column(length = 30)
     private RedemptionChannel channel;
 
-    @Column(nullable = false)
+    @Column(name = "redemption_date", nullable = false)
     private LocalDateTime redemptionDate;
 
+    @Column(name = "expiry_date")
     private LocalDateTime expiryDate;
 
+    @Column(name = "fulfillment_date")
     private LocalDateTime fulfillmentDate;
 
+    @Column(name = "used_date")
     private LocalDateTime usedDate;
 
-    @Column(length = 100)
+    @Column(name = "store_code", length = 100)
     private String storeCode;
 
-    @Column(length = 100)
+    @Column(name = "store_name", length = 100)
     private String storeName;
 
-    @Column(length = 50)
+    @Column(name = "cashier_code", length = 50)
     private String cashierCode;
 
-    @Column(length = 100)
+    @Column(name = "processed_by", length = 100)
     private String processedBy;
 
-    @Column(length = 500)
+    @Column(name = "redemption_code_generated", length = 500)
     private String redemptionCodeGenerated;
 
-    @Column(length = 255)
+    @Column(name = "voucher_code", length = 255)
     private String voucherCode;
 
-    @Column(columnDefinition = "TEXT")
+    @Column(name = "redemption_url", columnDefinition = "TEXT")
     private String redemptionUrl;
 
     @Column(columnDefinition = "TEXT")
     private String notes;
 
-    @Column(columnDefinition = "TEXT")
+    @Column(name = "cancellation_reason", columnDefinition = "TEXT")
     private String cancellationReason;
 
-    @Column(nullable = false, updatable = false)
+    @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
-    @Column(nullable = false)
+    @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
 
     @PrePersist

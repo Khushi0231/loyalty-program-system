@@ -117,5 +117,10 @@ public interface PromotionRepository extends JpaRepository<Promotion, Long> {
      * Find promotions by target city.
      */
     List<Promotion> findByTargetCity(String targetCity);
+
+    /**
+     * Find promotions by end date range.
+     */
+    List<Promotion> findByEndDateBetween(LocalDate start, LocalDate end);
 }
 

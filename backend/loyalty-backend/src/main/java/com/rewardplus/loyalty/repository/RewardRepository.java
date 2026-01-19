@@ -108,5 +108,10 @@ public interface RewardRepository extends JpaRepository<Reward, Long> {
            "AND r.expiryDate IS NOT NULL " +
            "AND r.expiryDate BETWEEN CURRENT_DATE AND :endDate")
     List<Reward> findExpiringSoon(@Param("endDate") java.time.LocalDate endDate);
+
+    /**
+     * Find active rewards with points less than or equal to a value.
+     */
+    List<Reward> findByStatusAndPointsRequiredLessThanEqual(RewardStatus status, int points);
 }
 
